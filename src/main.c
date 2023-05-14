@@ -212,7 +212,8 @@ void PROCESSPHASE(){
     safedo(E = SDL_SetRenderDrawColor(renderer_ptr,255,0,0,255),&E,"Error Setting drawcolour");
     for(float theta = 0; theta < (2*M_PI); theta += dTheta )
     {   
-        MyRenderLine(p0.position,(vector){cos(theta),sin(theta)} ,p0.strength);
+        //MyRenderLine(p0.position,(vector){cos(theta),sin(theta)} ,p0.strength);
+        safedo(E = SDL_RenderDrawLine(renderer_ptr,p0.position.x, p0.position.y,p0.position.x + cos(theta)*p0.strength,p0.position.y + sin(theta)*p0.strength),&E, "Error drawing line of particle P0");
     }
     safedo(E = SDL_SetRenderDrawColor(renderer_ptr,0,0,0,255),&E,"Error Setting drawcolour");
 }
@@ -241,7 +242,9 @@ int MyRenderLine(vector p, vector d, float s)
     while (s > 0.0001){
         pf.x = p.x + s * d.x; pf.y = p.x + s * d.y; //get what pf would be in an infinite plane
         float s1, s2;
-        s1 = (REZ_X - p.x)/d.x
+        s1 = (REZ_X - p.x)/d.x;
+        s2 = (REZ_Y - p.y)/d.y;
+        
 
     }
 }
