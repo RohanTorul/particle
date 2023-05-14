@@ -49,6 +49,7 @@ void ERRORCHECK(void* e, char* msg, SDL_Window* w, SDL_Renderer* r);
 void INPUTPHASE();
 void PROCESSPHASE();
 void DISPLAYPHASE();
+int IsMoreThan(float a, float b);
 //Vector stuff
 vector position_transform(vector p);
 float scalarProduct(vector a, vector b);
@@ -61,6 +62,7 @@ float length(vector p1, vector p2);
 float findX(float m, float c, float y);
 float findY(float m, float x, float c);
 float findC(float m, float x, float y);
+
 
 int main(int argc, char** argv)
 {   
@@ -247,4 +249,7 @@ int MyRenderLine(vector p, vector d, float s)
         
 
     }
+}
+int IsMoreThan(float a, float b){
+    return (((a - b) +fabs(b - a))/(2*(fabs(b-a))));
 }
