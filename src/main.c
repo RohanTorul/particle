@@ -7,7 +7,7 @@
 # define REZ_Y 800
 # define safedo(f,x, m) f; ERRORCHECK(x,m,window_ptr, renderer_ptr)
 # define PARTICLE_COUNT 240000
-#define SCREEN_FPS 600
+#define SCREEN_FPS 1
 #define SCREEN_TICKS_PER_FRAME (1000 / SCREEN_FPS)
 /*---------------------------STRUCTS-----------------------------------*/
 typedef enum colours{
@@ -50,6 +50,7 @@ void INPUTPHASE();
 void PROCESSPHASE();
 void DISPLAYPHASE();
 int IsMoreThan(float a, float b);
+vector interpolate(vector a, vector d, float s);
 //Vector stuff
 vector position_transform(vector p);
 float scalarProduct(vector a, vector b);
@@ -70,7 +71,7 @@ int main(int argc, char** argv)
     SDL_version nb;
     SDL_VERSION(&nb);
     int start_tick, diff_tick;
-    float fps = 60.0f;
+    float fps = 1.0f;
     char title[16];
     printf("Bienvenue sur la SDL %d.%d.%d! \n", nb.major, nb.minor, nb.patch);
 
@@ -82,7 +83,7 @@ int main(int argc, char** argv)
 
     SDL_RenderPresent(renderer_ptr);
     p0.position = (vector){400,400};
-    p0.strength = 100.0f;
+    p0.strength = 50.0f;
      //program execution
 
     while( QUIT_FLAG == 0 ){
@@ -157,8 +158,6 @@ void ERRORCHECK(void* e, char* msg, SDL_Window* w, SDL_Renderer* r)
         exit(EXIT_FAILURE);
     }
 }
-
-
 vector position_transform(vector p){
     if(p.x > REZ_X){
             p.x = 0 + ((int)p.x % REZ_X);
@@ -174,7 +173,6 @@ vector position_transform(vector p){
         }
     return p;
 }
-
 void INPUTPHASE()
 {   
     SDL_Event e;
@@ -207,25 +205,21 @@ void INPUTPHASE()
         } 
 
 }
-
 void PROCESSPHASE(){
     p0.position = position_transform(p0.position);
     float dTheta = M_PI/10;
     safedo(E = SDL_SetRenderDrawColor(renderer_ptr,255,0,0,255),&E,"Error Setting drawcolour");
     for(float theta = 0; theta < (2*M_PI); theta += dTheta )
     {   
-        //MyRenderLine(p0.position,(vector){cos(theta),sin(theta)} ,p0.strength);
+        MyRenderLine(p0.position,(vector){cos(theta),sin(theta)} ,p0.strength);
         safedo(E = SDL_RenderDrawLine(renderer_ptr,p0.position.x, p0.position.y,p0.position.x + cos(theta)*p0.strength,p0.position.y + sin(theta)*p0.strength),&E, "Error drawing line of particle P0");
     }
     safedo(E = SDL_SetRenderDrawColor(renderer_ptr,0,0,0,255),&E,"Error Setting drawcolour");
 }
-
 void DISPLAYPHASE(){} 
-
 float length(vector p1, vector p2){
     return(sqrt(pow(p1.x - p2.x, 2) + pow(p1.y-p2.y,2)));
 }
-
 float findY(float m, float x, float c){
     return ((m*x)+c);
 }
@@ -235,21 +229,17 @@ float findX(float m, float c, float y){
 float findC(float m, float x, float y){
     return (y - (m * x));
 }
-
 int MyRenderLine(vector p, vector d, float s)
 {   
-    vector pf;
-    vector pcheck;
-    //If Line is Vertical
-    while (s > 0.0001){
-        pf.x = p.x + s * d.x; pf.y = p.x + s * d.y; //get what pf would be in an infinite plane
-        float s1, s2;
-        s1 = (REZ_X - p.x)/d.x;
-        s2 = (REZ_Y - p.y)/d.y;
-        
-
-    }
+    //calculate point of intersection with X boundaries
+    vector boundary_intersection;
+    float s1 = (((REZ_Y-p.y)/d.y) * IsMoreThan(((REZ_Y-p.y)/d.y), 0)) + (((0-p.y)/d.y) * IsMoreThan(((0-p.y)/d.y), 0));
+    boundary_intersection = interpolate(p, d, s1);
+    printf("(%f, %f), (%f) -> (%f, %f) \n",p.x, p.y, s1 , boundary_intersection.x, boundary_intersection.y);
 }
 int IsMoreThan(float a, float b){
-    return (((a - b) +fabs(b - a))/(2*(fabs(b-a))));
+    if (a > b){return 1;}else{return 0;}//yeah 
+}
+vector interpolate(vector a, vector d, float s){
+    return(vector){(a.x + d.x*s),(a.y + d.y*s)};
 }
